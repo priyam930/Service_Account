@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: secret-access-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: secret-access-app
+  template:
+    metadata:
+      labels:
+        app: secret-access-app
+    spec:
+      serviceAccountName: my-service-account
+      containers:
+        - name: secret-reader
+          image: busybox
+          command: ["sh", "-c", "cat /etc/secrets/my-key; sleep 3600"]
+          volumeMounts:
+            - name: secret-volume
+              mountPath: /etc/secrets
+      volumes:
+        - name: secret-volume
+          secret:
+            secretName: my-secret
